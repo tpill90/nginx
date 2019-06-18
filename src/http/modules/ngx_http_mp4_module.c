@@ -612,7 +612,7 @@ ngx_http_mp4_handler(ngx_http_request_t *r)
     }
 
     if (start >= 0) {
-        r->single_range = 1;
+        r->only_support_ascending_ranges = 1;
 
         mp4 = ngx_pcalloc(r->pool, sizeof(ngx_http_mp4_file_t));
         if (mp4 == NULL) {

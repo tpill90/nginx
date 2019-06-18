@@ -1167,20 +1167,42 @@ ngx_http_upstream_cache_check_range(ngx_http_request_t *r,
 
     p = h->value.data + 6;
 
-    while (*p == ' ') { p++; }
+    for ( ;; ) {
+        while (*p == ' ') { p++; }
 
-    if (*p == '-') {
-        return NGX_DECLINED;
-    }
+        if (*p == '-') {
+            return NGX_DECLINED;
+        }
 
-    start = p;
+        start = p;
 
-    while (*p >= '0' && *p <= '9') { p++; }
+        while (*p >= '0' && *p <= '9') { p++; }
 
-    offset = ngx_atoof(start, p - start);
+        offset = ngx_atoof(start, p - start);
 
-    if (offset >= u->conf->cache_max_range_offset) {
-        return NGX_DECLINED;
+        if (offset >= u->conf->cache_max_range_offset) {
+            return NGX_DECLINED;
+        }
+
+        while (*p == ' ') { p++; }
+
+        if (*p++ != '-') {
+            return NGX_DECLINED;
+        }
+
+        while (*p == ' ') { p++; }
+
+        while (*p >= '0' && *p <= '9') { p++; }
+
+        while (*p == ' ') { p++; }
+
+        if (*p == '\0') {
+            break;
+        }
+
+        if (*p++ != ',') {
+            return NGX_DECLINED;
+        }
     }
 
     return NGX_OK;
@@ -2950,11 +2972,11 @@ ngx_http_upstream_process_headers(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
     if (u->conf->force_ranges) {
         r->allow_ranges = 1;
-        r->single_range = 1;
+        r->only_support_ascending_ranges = 1;
 
 #if (NGX_HTTP_CACHE)
         if (r->cached) {
-            r->single_range = 0;
+            r->only_support_ascending_ranges = 0;
         }
 #endif
     }
@@ -5579,7 +5601,7 @@ ngx_http_upstream_copy_allow_ranges(ngx_http_request_t *r,
 
     if (r->upstream->cacheable) {
         r->allow_ranges = 1;
-        r->single_range = 1;
+        r->only_support_ascending_ranges = 1;
         return NGX_OK;
     }
 

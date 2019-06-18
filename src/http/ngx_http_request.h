@@ -560,7 +560,7 @@ struct ngx_http_request_s {
     unsigned                          preserve_body:1;
     unsigned                          allow_ranges:1;
     unsigned                          subrequest_ranges:1;
-    unsigned                          single_range:1;
+    unsigned                          only_support_ascending_ranges:1;
     unsigned                          disable_not_modified:1;
     unsigned                          stat_reading:1;
     unsigned                          stat_writing:1;
